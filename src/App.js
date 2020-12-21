@@ -28,8 +28,8 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const getCountriesData = async () => {
-      await fetch ("https://disease.sh/v3/covid-19/countries")
+    const getCountriesData = () => {
+      fetch ("https://disease.sh/v3/covid-19/countries")
       .then((response) => response.json())
       .then((data) => {
         const countries = data.map((country) => (
@@ -38,9 +38,9 @@ function App() {
             value: country.countryInfo.iso2
           }));
           let sortedData = sortData(data);
-          setTableData(sortedData);
           setMapCountries(data);
           setCountries(countries);
+          setTableData(sortedData);
       });
     };
 
@@ -51,17 +51,17 @@ function App() {
     const countryCode = event.target.value;
 
     const url = countryCode === "worldwide" 
-    ? 'https://disease.sh/v3/covid-19/all' 
-    : `https://disease.sh/v3/covid-19/countries/${countryCode}`
+    ? "https://disease.sh/v3/covid-19/all"
+    : `https://disease.sh/v3/covid-19/countries/${countryCode}`;
 
- fetch(url)
+  fetch(url)
     .then(response => response.json())
     .then((data) => {
       setCountry(countryCode);
       setCountryInfo(data);
       if (countryCode != "worldwide") {
-        console.log(data.countryInfo.lat + " " + data.countryInfo.long);
-        setMapCenter([data.countryInfo.lat, data.countryInfo.long]);
+        setMapCenter({lat: data.countryInfo.lat, lng: data.countryInfo.long});
+        console.log(mapCenter);
       }
       setMapZoom(4);
     });
@@ -107,12 +107,13 @@ function App() {
         </div>
 
         <MapContainer casesType={casesType} countries={mapCountries} center={mapCenter} zoom={mapZoom}/>
+        {console.log(mapCenter)}
         </div>
           <Card className="app__right">
             <CardContent>
               <h3>Live Cases by Country</h3>
               <Table countries={tableData} />
-              <h3>Worldwide New {casesType}</h3>
+              <h3>Worldwide {casesType}</h3>
               <LineGraph casesType={casesType}/>
             </CardContent>
           </Card>
